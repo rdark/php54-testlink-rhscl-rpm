@@ -83,8 +83,12 @@ popd
 # copy over all files
 cp -pr * %{buildroot}%{testlinkdir}/
 pushd %{buildroot}%{testlinkdir}/
+find . -type d | sed '1,2d;s,^\.,\%attr(0755\,root\,root) \%dir %{testlinkdir},' >> %{_builddir}/file.list.%{pkg_name}
 find . -type f | sed 's,^\.,\%attr(0644\,root\,root) %{testlinkdir},' >> %{_builddir}/file.list.%{pkg_name}
 popd
+# delete directories that need specific permissions
+sed -i '\!%%dir %{upload_area}!d' %{_builddir}/file.list.%{pkg_name}
+sed -i '\!%%dir %{testlinkdir}/gui/templates_c!d' %{_builddir}/file.list.%{pkg_name}
 # quote any filenames with spaces as files directive fails on these
 sed -i 's/[[:space:]]\(\/.*[^/]\+[[:space:]][^/]\+\)\(\..*\)$/ "\1\2"/' %{_builddir}/file.list.%{pkg_name}
 
@@ -98,13 +102,7 @@ rm -rf %{buildroot}
 %attr(0770,%{web_user},%{web_group}) %{_root_localstatedir}/log/%{pkg_name}
 %attr(0640,root,%{web_group}) %config(noreplace) %{_root_sysconfdir}/%{pkg_name}/custom_config.inc.php
 %attr(0640,root,%{web_group}) %config(noreplace) %{_root_sysconfdir}/%{pkg_name}/config_db.inc.php
-%dir %attr(0755,root,root) %{testlinkdir}/gui
-%dir %attr(0755,root,root) %{testlinkdir}/docs
-%dir %attr(0755,root,root) %{testlinkdir}/custom
-%dir %attr(0755,root,root) %{testlinkdir}/lib
-%dir %attr(0755,root,root) %{testlinkdir}/locale
-%dir %attr(0755,root,root) %{testlinkdir}/third_party
-%dir %attr(0755,root,root) %{testlinkdir}/install
+%dir %attr(0755,root,root) %{testlinkdir}
 %dir %attr(0755,%{web_user},%{web_group}) %{testlinkdir}/gui/templates_c
 # mark symlinks as config
 %config %{testlinkdir}/custom_config.inc.php
