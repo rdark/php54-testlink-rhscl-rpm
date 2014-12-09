@@ -17,7 +17,7 @@
 
 Name:       %{?scl_prefix}testlink
 Version:    1.9.12
-Release:    1%{?dist}
+Release:    2%{?dist}
 Summary:    Open Source Test Management
 Group:      Applications/Internet
 License:    GPLv2+
@@ -25,6 +25,7 @@ URL:        http://sourceforge.net/projects/testlink
 Source0:    http://downloads.sourceforge.net/%{pkg_name}/%{pkg_name}-%{version}.tar.gz
 Source1:    config_db.inc.php
 Patch0:     0001-custom_config_example-set_logging-set_upload.patch
+Patch1:     6620-admin-rights-test-plan-management.patch
 BuildArch:  noarch
 Requires:   %{?scl_prefix}php
 Requires:   %{?scl_prefix}php-gd
@@ -44,6 +45,10 @@ trackers.
 %setup -n %{pkg_name}-%{version} -q
 # set default logging + upload location
 %patch0 -p0
+%if "%{version}" == "1.9.12"
+# patch for broken test plan management in 1.9.12
+%patch1 -p0
+%endif
 
 %build
 # nope
@@ -109,6 +114,10 @@ rm -rf %{buildroot}
 %config %{testlinkdir}/cfg
 
 %changelog
+* Tue Dec 09 2014 Richard Clark <rclark@telnic.org> - 1.9.12-2
+- Patch for broken test case management for admin users
+  (http://mantis.testlink.org/view.php?id=6620)
+
 * Mon Dec 01 2014 Richard Clark <rclark@telnic.org> - 1.9.12-1
 - Rework inital package by aodhav
 - Port to SCL (due to requirement for php 5.4)
